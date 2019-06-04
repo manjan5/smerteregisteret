@@ -1,0 +1,76 @@
+---
+title: "Månedlig tilsynsrapport for Smerteregisterets sykehus"
+output:
+  html_document:
+    theme: flatly
+    toc: yes
+  pdf_document: default
+  word_document: default
+---
+```{r, include = FALSE}
+knitr::opts_chunk$set(echo=FALSE)
+```
+
+```{r, warning = FALSE, message=FALSE}
+###Her hentes data og pakker 
+
+# Pakker
+library(xtable)
+library(tidyverse)
+library(stringr)
+library(zoo)
+
+#Dataimport: skal hente lokale data for hvert sykehus
+setwd("//ihelse.net/Kvalitetsregister/HBE/2014-00752/OpenQReg/datadumper/prod/Lokale data/Datadump Alle Variable Numerisk/2019-04-01/")
+dat <- read.csv(file = "Datadump_Alle_variabler_numerisk.csv", header = TRUE, sep = ";") 
+
+```
+
+## Antall tilsyn og årsak til ikke tilsyn
+
+Denne tabellen viser hvor mange som har fått tilsyn av smerteteamet totalt i tidsperioden. I tilegg viser den hvor mange som ble henvist, men som ikke fikk tilsyn og grunnen for at det ikke ble gitt tilsyn i disse tilfellene.
+
+```{r, warning = FALSE, message=FALSE}
+###Her klargjøres data for tilsynstabell
+
+# Data for tabell over tilsyn
+tilsynsdata <- dat %>% count(Tilsett) %>% mutate(prosent = round(100*(n/sum(n))))
+tilsynsdata[, 1] <- c("Ja", "Nei, ikke behov", "Nei, ikke kapasitet", "Nei, men gitt råd", "Nei, annen grunn")
+antall_svar <- tilsynsdata %>% summarise(sum(n))
+
+#Tilsynstabell
+tilsynstabell <- knitr::kable(tilsynsdata, caption = paste0("Antall besvarelser for hver kategori om pasienten har fått tilsyn. Basert på ", antall_svar," svar."), 
+                    
+                       col.names = c("Har pasienten fått tilsyn?", "Antall besvarelser", "Prosent besvarelser"))
+tilsynstabell
+```
+
+
+## Behandlertilsyn og pasienttilsyn per måned
+
+Denne tabellen viser hvor mange som har fått tilsyn av de ulike behandlergruppene per måned. I tillegg vises antall pasienttilsyn og totalt antall behandlertilsyn. 
+
+```{r, warning = FALSE, message=FALSE}
+###Her klargjøres data for behandlertabell
+tilsyn_full = dat %>% select(AntPasTils, AntTilsLege, AntTilsSykPleier, AntTilsFysioT, AntTilsPsyk, AntTilsSosio, RegDato11) %>% 
+                           gather(key = tilsynstype, value=antall, 
+                           AntPasTils, AntTilsLege, AntTilsSykPleier, AntTilsFysioT, AntTilsPsyk, AntTilsSosio) %>% 
+                           mutate(antall = replace(antall, is.na(antall), 0), 
+                           month = months(as.Date(RegDato11)),
+                                                 
+                     tilsynstype=str_replace_all(tilsynstype,"AntTilsLege", 
+                                                 "Lege"),
+                     tilsynstype=str_replace_all(tilsynstype, "AntTilsSykPleier",
+                                                 "Sykepleier"), 
+                     tilsynstype=str_replace_all(tilsynstype, "AntTilsFysioT", 
+                                                 "Fysioterapeut"),
+                     tilsynstype=str_replace_all(tilsynstype, "AntTilsPsyk", 
+                                                  "Psykolog"),
+                     tilsynstype=str_replace_all(tilsynstype, "AntTilsSosio", 
+                                                  "Sosionom"),
+                     tilsynstype=str_replace_all(tilsynstype, "AntPasTils", 
+                                                  "Total"),
+                     yearmonth = as.yearmon(RegDato11))
+
+
+```
