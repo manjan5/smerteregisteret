@@ -6,6 +6,8 @@ output:
     toc: yes
   pdf_document: default
   word_document: default
+params:
+  tableFormat: lokaltDefinertParam
 ---
 ```{r, include = FALSE}
 knitr::opts_chunk$set(echo=FALSE)
@@ -36,6 +38,8 @@ if (context %in% c("DEV", "TEST", "QA", "PRODUCTION")) {
 ## Antall tilsyn og årsak til ikke tilsyn
 
 Denne tabellen viser hvor mange som har fått tilsyn av smerteteamet totalt i tidsperioden. I tilegg viser den hvor mange som ble henvist, men som ikke fikk tilsyn og grunnen for at det ikke ble gitt tilsyn i disse tilfellene.
+
+Parameter til rapporten: `r params$tableFormat`
 
 ```{r, warning = FALSE, message=FALSE}
 ###Her klargjøres data for tilsynstabell
