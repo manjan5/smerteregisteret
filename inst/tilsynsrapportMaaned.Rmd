@@ -48,8 +48,6 @@ dat = dat %>% filter(year(date(RegDato11)) == "2017")
 
 Denne tabellen viser hvor mange som har fått tilsyn av smerteteamet totalt i tidsperioden. I tilegg viser den hvor mange som ble henvist, men som ikke fikk tilsyn og grunnen for at det ikke ble gitt tilsyn i disse tilfellene.
 
-Parameter til rapporten: `r params$tableFormat`
-
 ```{r, warning = FALSE, message=FALSE}
 ###Her klargjøres data for tilsynstabell
 
