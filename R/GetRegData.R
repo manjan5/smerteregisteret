@@ -21,6 +21,8 @@ SELECT
   var.Tilsett,
   var.RegDato11,
   var.InnlAvd,
+  var.PasientID,
+  var.ForlopsID,
   avd.DEPARTMENT_ID,
   avd.DEPARTMENT_NAME
 FROM
