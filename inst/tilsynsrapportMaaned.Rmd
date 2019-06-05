@@ -7,7 +7,7 @@ output:
   pdf_document: default
   word_document: default
 params:
-  tableFormat: lokaltDefinertParam
+  reshId: locallyDefined
 ---
 ```{r, include = FALSE}
 knitr::opts_chunk$set(echo=FALSE)
@@ -32,7 +32,7 @@ library(magrittr)
 context <- Sys.getenv("R_RAP_INSTANCE")
 
 if (context %in% c("DEV", "TEST", "QA", "PRODUCTION")) {
-  dat <- smerteregisteret::getRegData(registryName = "smerte")
+  dat <- smerteregisteret::getRegDataTilsynsrapportMaaned(registryName = "smerte", reshId = params$reshId)
 } else {
   #Dataimport: skal hente lokale data for hvert sykehus
   setwd("//ihelse.net/Kvalitetsregister/HBE/2014-00752/OpenQReg/datadumper/prod/Lokale data/Datadump Alle Variable Numerisk/2019-04-01/")
