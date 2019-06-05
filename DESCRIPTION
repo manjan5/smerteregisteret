@@ -15,7 +15,8 @@ Imports:
   magrittr,
   rapbase,
   rmarkdown,
-  shiny
+  shiny,
+  zoo
 Remotes:
   Rapporteket/rapbase@rel
 Encoding: UTF-8
