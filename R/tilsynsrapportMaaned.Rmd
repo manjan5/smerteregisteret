@@ -20,11 +20,17 @@ library(tidyverse)
 library(stringr)
 library(zoo)
 library(dplyr)
+library(magrittr)
 
-#Dataimport: skal hente lokale data for hvert sykehus
-setwd("//ihelse.net/Kvalitetsregister/HBE/2014-00752/OpenQReg/datadumper/prod/Lokale data/Datadump Alle Variable Numerisk/2019-04-01/")
-dat <- read.csv(file = "Datadump_Alle_variabler_numerisk.csv", header = TRUE, sep = ";") 
+context <- Sys.getenv("R_RAP_INSTANCE")
 
+if (context %in% c("DEV", "TEST", "QA", "PRODUCTION")) {
+  dat <- smerteregisteret::getRegData(registryName = "smerte")
+} else {
+  #Dataimport: skal hente lokale data for hvert sykehus
+  setwd("//ihelse.net/Kvalitetsregister/HBE/2014-00752/OpenQReg/datadumper/prod/Lokale data/Datadump Alle Variable Numerisk/2019-04-01/")
+  dat <- read.csv(file = "Datadump_Alle_variabler_numerisk.csv", header = TRUE, sep = ";")
+}
 ```
 
 ## Antall tilsyn og årsak til ikke tilsyn
@@ -52,18 +58,19 @@ Denne tabellen viser hvor mange som har fått tilsyn av de ulike behandlergruppe
 ```{r, warning = FALSE, message=FALSE}
 ###Her klargjøres data for behandlertabell
 
-#Må gjøre variablene numerisk for bruk i tabell
-dat$AntTilsLege <- as.numeric(levels(dat$AntTilsLege))[dat$AntTilsLege]
-#dat$AntTilsLege <- as.numeric((dat$AntTilsLege))
-dat$AntTilsSykPleier <- as.numeric(levels(dat$AntTilsSykPleier))[dat$AntTilsSykPleier]
-#dat$AntTilsSykPleier <- as.numeric((dat$AntTilsSykPleier))
-dat$AntTilsFysioT <- as.numeric(levels(dat$AntTilsFysioT))[dat$AntTilsFysioT]
-#dat$AntTilsFysioT <- as.numeric(dat$AntTilsFysioT)
-dat$AntTilsPsyk <- as.numeric(levels(dat$AntTilsPsyk))[dat$AntTilsPsyk]
-#dat$AntTilsPsyk <- as.numeric(dat$AntTilsPsyk)
-dat$AntTilsSosio <- as.numeric(levels(dat$AntTilsSosio))[dat$AntTilsSosio]
-dat$AntPasTils <- as.numeric(levels(dat$AntPasTils))[dat$AntPasTils]
-
+if (context == "") {
+  #Må gjøre variablene numerisk for bruk i tabell
+  dat$AntTilsLege <- as.numeric(levels(dat$AntTilsLege))[dat$AntTilsLege]
+  #dat$AntTilsLege <- as.numeric((dat$AntTilsLege))
+  dat$AntTilsSykPleier <- as.numeric(levels(dat$AntTilsSykPleier))[dat$AntTilsSykPleier]
+  #dat$AntTilsSykPleier <- as.numeric((dat$AntTilsSykPleier))
+  dat$AntTilsFysioT <- as.numeric(levels(dat$AntTilsFysioT))[dat$AntTilsFysioT]
+  #dat$AntTilsFysioT <- as.numeric(dat$AntTilsFysioT)
+  dat$AntTilsPsyk <- as.numeric(levels(dat$AntTilsPsyk))[dat$AntTilsPsyk]
+  #dat$AntTilsPsyk <- as.numeric(dat$AntTilsPsyk)
+  dat$AntTilsSosio <- as.numeric(levels(dat$AntTilsSosio))[dat$AntTilsSosio]
+  dat$AntPasTils <- as.numeric(levels(dat$AntPasTils))[dat$AntPasTils]
+}
 
 #Organiserer data etter tilsynstype og måned
 tilsyn_full = dat %>% select(AntPasTils, AntTilsLege, AntTilsSykPleier, AntTilsFysioT, AntTilsPsyk, AntTilsSosio, RegDato11) %>% 
