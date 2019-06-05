@@ -19,6 +19,11 @@ ui <- tagList(
                             organization = uiOutput("appOrgName"))
       )
     ),
+    tabPanel("Tilsynsrapport",
+      mainPanel(width = 12,
+        htmlOutput("tilsynsrapport", inline = TRUE)
+      )
+    ),
     tabPanel("Figur og tabell"
       ,
       sidebarLayout(

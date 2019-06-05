@@ -30,6 +30,10 @@ server <- function(input, output, session) {
     htmlRenderRmd("veiledning.Rmd")
   })
 
+  # Tilsynsrapport
+  output$tilsynsrapport <- renderUI({
+    htmlRenderRmd("tilsynsrapportMaaned.Rmd")
+  })
 
   # Figur og tabell
   ## Figur
