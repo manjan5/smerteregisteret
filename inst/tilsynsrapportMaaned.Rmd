@@ -41,7 +41,7 @@ if (context %in% c("DEV", "TEST", "QA", "PRODUCTION")) {
 }
 
 #Bruker for øyeblikket kun 2019-data
-dat = dat %>% filter(year(date(RegDato11)) == "2019")
+dat = dat %>% filter(year(date(RegDato11)) == "2017")
 ```
 
 ## Antall tilsyn og årsak til ikke tilsyn
