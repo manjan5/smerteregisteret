@@ -12,12 +12,23 @@ getRegData <- function(registryName) {
 
   query <- "
 SELECT
-  AvdRESH AS Avdeling,
-  COUNT(*) AS n
+  var.AntTilsLege,
+  var.AntTilsSykPleier,
+  var.AntTilsFysioT,
+  var.AntTilsPsyk,
+  var.AntTilsSosio,
+  var.AntPasTils,
+  var.Tilsett,
+  var.RegDato11,
+  var.InnlAvd,
+  avd.DEPARTMENT_ID,
+  avd.DEPARTMENT_NAME
 FROM
-  AlleVarNum
-GROUP BY
-  AvdRESH;
+  AlleVarNum var
+LEFT JOIN
+  Avdelingsoversikt avd
+ON
+  avd.DEPARTMENT_ID = var.InnlAvd;
 "
 
   regData <- rapbase::LoadRegData(registryName, query, dbType)
