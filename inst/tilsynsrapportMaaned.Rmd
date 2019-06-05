@@ -26,6 +26,7 @@ library(stringr)
 library(zoo)
 library(dplyr)
 library(magrittr)
+library(lubridate)
 
 context <- Sys.getenv("R_RAP_INSTANCE")
 
@@ -36,6 +37,9 @@ if (context %in% c("DEV", "TEST", "QA", "PRODUCTION")) {
   setwd("//ihelse.net/Kvalitetsregister/HBE/2014-00752/OpenQReg/datadumper/prod/Lokale data/Datadump Alle Variable Numerisk/2019-04-01/")
   dat <- read.csv(file = "Datadump_Alle_variabler_numerisk.csv", header = TRUE, sep = ";")
 }
+
+#Bruker for øyeblikket kun 2019-data
+dat = dat %>% filter(year(date(RegDato11)) == "2019")
 ```
 
 ## Antall tilsyn og årsak til ikke tilsyn
@@ -58,7 +62,7 @@ tilsynstabell
 
 ## Behandlertilsyn og pasienttilsyn per måned
 
-Denne tabellen viser hvor mange som har fått tilsyn av de ulike behandlergruppene per måned. I tillegg vises antall pasienttilsyn og totalt antall behandlertilsyn. Antall pasienter er antall unike pasienter. Antall henvisninger viser antall forløp som er registert (altså uavhenging av om samme pasient er henvist flere ganger i løpet av perioden).
+Denne tabellen viser hvor mange som har fått tilsyn av de ulike behandlergruppene per måned. I tillegg vises antall pasienttilsyn og totalt antall behandlertilsyn. Antall pasienter er antall unike pasienter som er tilsett minst én gang. Antall henvisninger viser antall forløp som er registert (altså uavhenging av om samme pasient er henvist flere ganger i løpet av perioden).
 
 ```{r, warning = FALSE, message=FALSE}
 ###Her klargjøres data for behandlertabell
@@ -78,7 +82,7 @@ if (context == "") {
 }
 
 #Organiserer data etter tilsynstype og måned
-tilsyn_full = dat %>% select(AntPasTils, AntTilsLege, AntTilsSykPleier, AntTilsFysioT, AntTilsPsyk, AntTilsSosio, RegDato11, PasientID, ForlopsID) %>% 
+tilsyn_full = dat %>% select(AntPasTils, AntTilsLege, AntTilsSykPleier, AntTilsFysioT, AntTilsPsyk, AntTilsSosio, RegDato11, PasientID, ForlopsID, Tilsett) %>% 
                            gather(key = tilsynstype, value=antall, 
                            AntPasTils, AntTilsLege, AntTilsSykPleier, AntTilsFysioT, AntTilsPsyk, AntTilsSosio) %>% 
                            mutate(antall = replace(antall, is.na(antall), 0), 
@@ -111,7 +115,7 @@ sum_tilsyn_maned = tilsyn_full %>%
                      spread(tilsynstype, antall) %>% rowwise() %>% 
                      mutate(Behandlertilsyn = sum(Fysioterapeut, Lege, Psykolog, Sosionom, Sykepleier))
 
-antall_pas_maned = tilsyn_full %>% distinct(PasientID, .keep_all = TRUE) %>% count(monthname) 
+antall_pas_maned = tilsyn_full %>% filter(Tilsett == 1) %>% distinct(PasientID, .keep_all = TRUE) %>% count(monthname) 
 antall_henv_maned = tilsyn_full %>% distinct(ForlopsID, .keep_all = TRUE) %>% count(monthname) 
 sum_tilsyn_maned = bind_cols(sum_tilsyn_maned, antall_pas_maned[ , 2], antall_henv_maned[ , 2])
 
