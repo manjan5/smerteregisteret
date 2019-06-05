@@ -10,7 +10,10 @@ server <- function(input, output, session) {
   # Gjenbrukbar funksjon for å bearbeide Rmd til html
   htmlRenderRmd <- function(srcFile, params = list()) {
     # set param needed for report meta processing
-    # params <- list(tableFormat="html")
+    context <- Sys.getenv("R_RAP_INSTANCE")
+    if (context %in% c("DEV", "TEST", "QA", "PRODUCTION")) {
+      params <- list(reshId=rapbase::getUserReshId(session))
+    }
     system.file(srcFile, package="smerteregisteret") %>%
       knitr::knit() %>%
       markdown::markdownToHTML(.,
