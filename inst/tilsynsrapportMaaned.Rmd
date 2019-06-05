@@ -9,6 +9,11 @@ output:
 ---
 ```{r, include = FALSE}
 knitr::opts_chunk$set(echo=FALSE)
+
+#FIX: Må det legges inn noe som avjgør lokasjon
+#FIX: når vil de ha rapporten for (dato)
+#FIX3: bytte fra RegDato11 til StartDatoTO? (spør LJ/Stefanie)
+
 ```
 
 ```{r, warning = FALSE, message=FALSE}
@@ -53,7 +58,7 @@ tilsynstabell
 
 ## Behandlertilsyn og pasienttilsyn per måned
 
-Denne tabellen viser hvor mange som har fått tilsyn av de ulike behandlergruppene per måned. I tillegg vises antall pasienttilsyn og totalt antall behandlertilsyn. 
+Denne tabellen viser hvor mange som har fått tilsyn av de ulike behandlergruppene per måned. I tillegg vises antall pasienttilsyn og totalt antall behandlertilsyn. Antall pasienter er antall unike pasienter. Antall henvisninger viser antall forløp som er registert (altså uavhenging av om samme pasient er henvist flere ganger i løpet av perioden).
 
 ```{r, warning = FALSE, message=FALSE}
 ###Her klargjøres data for behandlertabell
@@ -73,7 +78,7 @@ if (context == "") {
 }
 
 #Organiserer data etter tilsynstype og måned
-tilsyn_full = dat %>% select(AntPasTils, AntTilsLege, AntTilsSykPleier, AntTilsFysioT, AntTilsPsyk, AntTilsSosio, RegDato11) %>% 
+tilsyn_full = dat %>% select(AntPasTils, AntTilsLege, AntTilsSykPleier, AntTilsFysioT, AntTilsPsyk, AntTilsSosio, RegDato11, PasientID, ForlopsID) %>% 
                            gather(key = tilsynstype, value=antall, 
                            AntPasTils, AntTilsLege, AntTilsSykPleier, AntTilsFysioT, AntTilsPsyk, AntTilsSosio) %>% 
                            mutate(antall = replace(antall, is.na(antall), 0), 
@@ -106,6 +111,10 @@ sum_tilsyn_maned = tilsyn_full %>%
                      spread(tilsynstype, antall) %>% rowwise() %>% 
                      mutate(Behandlertilsyn = sum(Fysioterapeut, Lege, Psykolog, Sosionom, Sykepleier))
 
+antall_pas_maned = tilsyn_full %>% distinct(PasientID, .keep_all = TRUE) %>% count(monthname) 
+antall_henv_maned = tilsyn_full %>% distinct(ForlopsID, .keep_all = TRUE) %>% count(monthname) 
+sum_tilsyn_maned = bind_cols(sum_tilsyn_maned, antall_pas_maned[ , 2], antall_henv_maned[ , 2])
+
 # Finne summen av hver tilsynstype
 #total_tilsyn_maned = summarise_all(sum_tilsyn_maned[,-1], funs(sum)) #må "ungroup" hvis denne skal brukes
 total_tilsyn_maned = colSums(sum_tilsyn_maned[, -1])
@@ -117,9 +126,9 @@ levels(sum_tilsyn_maned$monthname)=c(levels(sum_tilsyn_maned$monthname), "Total"
 sum_tilsyn_maned$monthname[is.na(sum_tilsyn_maned$monthname)] = "Total"
 
 # Bytte på rekkefølgen slik at behandlertilsyn kommer før pasienttilsyn
-sum_tilsyn_maned = sum_tilsyn_maned[,c(1,2,3,4,5,6,8,7)]
+sum_tilsyn_maned = sum_tilsyn_maned[,c(1, 2, 3, 4, 5, 6, 8, 7, 9, 10)]
 
-knitr::kable(sum_tilsyn_maned, caption = paste0("Antall tilsyn per måned for de ulike behandlergruppene."), col.names = c("Måned", "Fysioterapeut", "Lege", "Psykolog", "Sosionom", "Sykepleier", "Behandlertilsyn", "Pasienttilsyn"))
+knitr::kable(sum_tilsyn_maned, caption = paste0("Antall tilsyn per måned for de ulike behandlergruppene."), col.names = c("Måned", "Fysioterapeut", "Lege", "Psykolog", "Sosionom", "Sykepleier", "Behandlertilsyn", "Pasienttilsyn", "Antall pasienter", "Antall henvisninger"))
 
 ```
 
