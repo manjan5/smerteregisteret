@@ -22,6 +22,50 @@ server <- function(input, output, session) {
       shiny::HTML()
   }
 
+
+  # filename function for re-use
+  downloadFilename <- function(fileBaseName, type) {
+    paste(paste0(fileBaseName,
+                 as.character(as.integer(as.POSIXct(Sys.time())))),
+          sep = '.', switch(
+            type,
+            PDF = 'pdf', HTML = 'html', REVEAL = 'html', BEAMER = 'pdf')
+    )
+  }
+
+  # render file function for re-use
+  contentFile <- function(file, srcFile, tmpFile, type) {
+    src <- normalizePath(system.file(srcFile, package="smerteregisteret"))
+    hospitalName <- rapbase::getUserReshId(session) # to be extended
+
+    # temporarily switch to the temp dir, in case we do not have write
+    # permission to the current working directory
+    owd <- setwd(tempdir())
+    on.exit(setwd(owd))
+    file.copy(src, tmpFile, overwrite = TRUE)
+
+    library(rmarkdown)
+    out <- render(tmpFile, output_format = switch(
+      type,
+      PDF = pdf_document(),
+      HTML = html_document(),
+      BEAMER = beamer_presentation(theme = "Hannover"),
+      REVEAL = revealjs::revealjs_presentation(theme = "sky")
+      #css = normalizePath(system.file("bootstrap.css", package = "noric")))
+    ), params = list(tableFormat=switch(
+      type,
+      PDF = "latex",
+      HTML = "html",
+      BEAMER = "latex",
+      REVEAL = "html"), hospitalName=hospitalName
+    ), output_dir = tempdir())
+    # active garbage collection to prevent memory hogging?
+    gc()
+    file.rename(out, file)
+  }
+
+
+
   # widget
   output$appUserName <- renderText(getUserFullName(session))
   output$appOrgName <- renderText(getUserReshId(session))
