@@ -4,7 +4,7 @@
 \alias{getRegDataTilsynsrapportMaaned}
 \title{Provide dataframe of registry data}
 \usage{
-getRegDataTilsynsrapportMaaned(registryName, reshId)
+getRegDataTilsynsrapportMaaned(registryName, reshId, startDate, endDate)
 }
 \arguments{
 \item{registryName}{String providing the current registryName}
