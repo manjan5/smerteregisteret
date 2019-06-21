@@ -19,8 +19,16 @@ ui <- tagList(
       )
     ),
     tabPanel("Tilsynsrapport",
-      mainPanel(width = 12,
-        htmlOutput("tilsynsrapport", inline = TRUE)
+      sidebarLayout(
+        sidebarPanel(
+          dateRangeInput(inputId = "period", label = "Periode:",
+                         start = "2017-01-01", end = NULL,
+                         format = "dd-mm-yyyy", language = "nb",
+                         weekstart = 1)
+        ),
+        mainPanel(
+          htmlOutput("tilsynsrapport", inline = TRUE)
+        )
       )
     ),
     tabPanel("Figur og tabell"
