@@ -17,7 +17,7 @@ getHospitalName <- function(reshID) {
 
   regName <- "smerte"
   dbType <- "mysql"
-  query <- paste("SELECT SykehusNavn FROM AlleVarNum WHERE AvdRESH ='",
+  query <- paste0("SELECT SykehusNavn FROM AlleVarNum WHERE AvdRESH = '",
                  reshID, "' LIMIT 1")
 
   rapbase::LoadRegData(regName, dbType = dbType, query = query)[1,1]
