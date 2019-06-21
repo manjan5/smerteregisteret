@@ -9,7 +9,9 @@ server <- function(input, output, session) {
     # set param needed for report meta processing
     context <- Sys.getenv("R_RAP_INSTANCE")
     if (context %in% c("DEV", "TEST", "QA", "PRODUCTION")) {
-      params <- list(reshId=rapbase::getUserReshId(session))
+      params <- list(reshId=rapbase::getUserReshId(session),
+                     startDate=input$period[1], endDate=input$period[2],
+                     tableFormat="html")
     }
     system.file(srcFile, package="smerteregisteret") %>%
       knitr::knit() %>%
