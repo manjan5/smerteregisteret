@@ -2,7 +2,7 @@ library(shiny)
 library(rapbase)
 
 addResourcePath('rap', system.file('www', package='rapbase'))
-regTitle = "smerteregisteret"
+regTitle = "Smerteregisteret"
 
 ui <- tagList(
   navbarPage(
