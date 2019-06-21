@@ -7,7 +7,8 @@
 #' @return regData data frame
 #' @export
 
-getRegDataTilsynsrapportMaaned <- function(registryName, reshId) {
+getRegDataTilsynsrapportMaaned <- function(registryName, reshId, startDate,
+                                           endDate) {
 
   dbType <- "mysql"
 
@@ -33,9 +34,10 @@ LEFT JOIN
 ON
   avd.DEPARTMENT_ID = var.InnlAvd
 WHERE
-  var.AvdRESH ="
+  var.AvdRESH = "
 
-  query <- paste(query, reshId)
+  query <- paste0(query, reshId, " AND (DATE(var.RegDato11) BETWEEN '",
+                  startDate, "' AND '", endDate, "');")
 
   regData <- rapbase::LoadRegData(registryName, query, dbType)
 
