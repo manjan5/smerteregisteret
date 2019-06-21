@@ -1,13 +1,19 @@
 ---
-title: "Månedlig tilsynsrapport for Smerteregisterets sykehus"
+params:
+  title: 'Månedlig tilsynsrapport for Smerteregisterets sykehus'
+  author: 'Rapporteket'
+  hospitalName: 'Ukjent sukehus'
+  reshId: 'locallyDefined'
+  tableFormat: 'html'
+title: '`r params$title`'
+author: '`r params$author`'
+date: '`r format(Sys.time(), "%d %B, %Y")`'
 output:
   html_document:
     theme: flatly
     toc: yes
   pdf_document: default
   word_document: default
-params:
-  reshId: locallyDefined
 ---
 ```{r, include = FALSE}
 knitr::opts_chunk$set(echo=FALSE)

@@ -1,11 +1,8 @@
 library(shiny)
 library(magrittr)
-library(rapRegTemplate)
+library(rapbase)
 
 server <- function(input, output, session) {
-
-  # Last inn data
-  regData <- getFakeRegData()
 
   # Gjenbrukbar funksjon for å bearbeide Rmd til html
   htmlRenderRmd <- function(srcFile, params = list()) {
@@ -24,7 +21,7 @@ server <- function(input, output, session) {
   }
 
   # widget
-  output$appUserName <- renderText(getUserName(session))
+  output$appUserName <- renderText(getUserFullName(session))
   output$appOrgName <- renderText(getUserReshId(session))
 
 
