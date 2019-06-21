@@ -1,11 +1,13 @@
 ---
 params:
-  title: 'Månedlig tilsynsrapport for Smerteregisterets sykehus'
+  title: 'Månedlig tilsynsrapport fra Smerteregisterets ved'
   author: 'Rapporteket'
   hospitalName: 'Ukjent sukehus'
   reshId: 'locallyDefined'
+  startDate: '2017-01-01'
+  endDate: '2017-12-31'
   tableFormat: 'html'
-title: '`r params$title`'
+title: '`r paste(params$title, params$hospitalName, "i perioden", params$startDate, "-", params$endDate)`'
 author: '`r params$author`'
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output:
@@ -15,17 +17,8 @@ output:
   pdf_document: default
   word_document: default
 ---
-```{r, include = FALSE}
+```{r set options and load packages, include = FALSE}
 knitr::opts_chunk$set(echo=FALSE)
-
-#FIX: Må det legges inn noe som avjgør lokasjon
-#FIX: når vil de ha rapporten for (dato)
-#FIX3: bytte fra RegDato11 til StartDatoTO? (spør LJ/Stefanie)
-
-```
-
-```{r, warning = FALSE, message=FALSE}
-###Her hentes data og pakker 
 
 # Pakker
 library(xtable)
@@ -35,11 +28,24 @@ library(zoo)
 library(dplyr)
 library(magrittr)
 library(lubridate)
+library(smerteregisteret)
+library(knitr)
+library(kableExtra)
 
+#FIX: Må det legges inn noe som avjgør lokasjon
+#FIX: når vil de ha rapporten for (dato)
+#FIX3: bytte fra RegDato11 til StartDatoTO? (spør LJ/Stefanie)
+
+```
+
+```{r get data, warning = FALSE, message=FALSE}
 context <- Sys.getenv("R_RAP_INSTANCE")
 
 if (context %in% c("DEV", "TEST", "QA", "PRODUCTION")) {
-  dat <- smerteregisteret::getRegDataTilsynsrapportMaaned(registryName = "smerte", reshId = params$reshId)
+  dat <- getRegDataTilsynsrapportMaaned(registryName = "smerte",
+                                        reshId = params$reshId,
+                                        startDate = params$startDate,
+                                        endDate = params$endDate)
 } else {
   #Dataimport: skal hente lokale data for hvert sykehus
   setwd("//ihelse.net/Kvalitetsregister/HBE/2014-00752/OpenQReg/datadumper/prod/Lokale data/Datadump Alle Variable Numerisk/2019-04-01/")
@@ -47,14 +53,36 @@ if (context %in% c("DEV", "TEST", "QA", "PRODUCTION")) {
 }
 
 #Bruker for øyeblikket kun 2019-data
-dat = dat %>% filter(year(date(RegDato11)) == "2017")
+#dat = dat %>% filter(year(date(RegDato11)) == "2017")
+```
+
+```{r makeStandardTableFunction, eval=TRUE}
+mst <- function(tab, colnames = colnames(tab), type, cap, digs, align = NULL, fs = 8, lsd = FALSE) {
+  if (type == "latex") {
+    if (lsd) {
+      lo <- c("hold_position", "scale_down")
+    } else {
+      lo <- c("hold_position")
+    }
+    k <- kable(tab, col.names = colnames, caption = cap, digits = digs, align = align,
+               booktabs = TRUE) %>% 
+      kable_styling(latex_options = lo, font_size = fs)
+  }
+  
+  if (type == "html") {
+    k <- kable(tab, col.names = colnames, caption = cap, digits = digs, align = align) %>% 
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed"),
+                    full_width = F)
+  }
+  print(k)
+}
 ```
 
 ## Antall tilsyn og årsak til ikke tilsyn
 
 Denne tabellen viser hvor mange som har fått tilsyn av smerteteamet totalt i tidsperioden. I tilegg viser den hvor mange som ble henvist, men som ikke fikk tilsyn og grunnen for at det ikke ble gitt tilsyn i disse tilfellene.
 
-```{r, warning = FALSE, message=FALSE}
+```{r tilsynstabell, warning = FALSE, message=FALSE, results='asis'}
 ###Her klargjøres data for tilsynstabell
 
 # Data for tabell over tilsyn
@@ -63,8 +91,11 @@ tilsynsdata[, 1] <- c("Ja", "Nei, ikke behov", "Nei, ikke kapasitet", "Nei, men 
 antall_svar <- tilsynsdata %>% summarise(sum(n))
 
 #Tilsynstabell
-tilsynstabell <- knitr::kable(tilsynsdata, caption = paste0("Antall for hver kategori om pasienten har fått tilsyn."), col.names = c("Har pasienten fått tilsyn?", "Antall ", "Prosent"))
-tilsynstabell
+mst(tab = tilsynsdata, colnames = c("Har pasienten fått tilsyn?", "Antall ",
+                                    "Prosent"),
+    cap = paste0("Antall for hver kategori om pasienten har fått tilsyn."),
+    type = params$tableFormat,
+    digs = 0)
 ```
 
 
@@ -72,7 +103,7 @@ tilsynstabell
 
 Denne tabellen viser hvor mange som har fått tilsyn av de ulike behandlergruppene per måned. I tillegg vises antall pasienttilsyn og totalt antall behandlertilsyn. Antall pasienter er antall unike pasienter som er tilsett minst én gang. Antall henvisninger viser antall forløp som er registert (altså uavhenging av om samme pasient er henvist flere ganger i løpet av perioden).
 
-```{r, warning = FALSE, message=FALSE}
+```{r behandlertabell, warning = FALSE, message=FALSE, results='asis'}
 ###Her klargjøres data for behandlertabell
 
 if (context == "") {
@@ -140,8 +171,15 @@ sum_tilsyn_maned$monthname[is.na(sum_tilsyn_maned$monthname)] = "Total"
 # Bytte på rekkefølgen slik at behandlertilsyn kommer før pasienttilsyn
 sum_tilsyn_maned = sum_tilsyn_maned[,c(1, 2, 3, 4, 5, 6, 8, 7, 9, 10)]
 
-knitr::kable(sum_tilsyn_maned, caption = paste0("Antall tilsyn per måned for de ulike behandlergruppene."), col.names = c("Måned", "Fysioterapeut", "Lege", "Psykolog", "Sosionom", "Sykepleier", "Behandlertilsyn", "Pasienttilsyn", "Antall pasienter", "Antall henvisninger"))
+mst(tab = sum_tilsyn_maned,
+    colnames = c("Måned", "Fysio", "Lege", "Psykolog", "Sosionom",
+                 "Sykepleier", "Beh tilsyn", "Pas tilsyn", "Ant pas",
+                 "Ant henv"),
+    type = params$tableFormat,
+    cap = paste0("Antall tilsyn per måned for de ulike behandlergruppene."),
+    digs = 0)
 
+#knitr::kable(sum_tilsyn_maned, caption = paste0("Antall tilsyn per måned for de ulike behandlergruppene."), col.names = c("Måned", "Fysio", "Lege", "Psykolog", "Sosionom", "Sykepleier", "Beh tilsyn", "Pas tilsyn", "Ant pas", "Ant henv")) %>% kableExtra::kable_styling(bootstrap_options = c("striped", "hover", "condensed"), full_width = F)
 ```
 
 
