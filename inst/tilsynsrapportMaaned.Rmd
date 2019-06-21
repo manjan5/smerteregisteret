@@ -10,6 +10,10 @@ params:
 title: '`r paste(params$title, params$hospitalName, "i perioden", params$startDate, "-", params$endDate)`'
 author: '`r params$author`'
 date: '`r format(Sys.time(), "%d %B, %Y")`'
+header-includes:
+  - \usepackage[english, norsk]{babel}
+  - \usepackage{booktabs}
+  - \usepackage{rotating}
 output:
   html_document:
     theme: flatly
