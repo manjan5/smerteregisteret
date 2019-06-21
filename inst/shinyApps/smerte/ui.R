@@ -24,7 +24,12 @@ ui <- tagList(
           dateRangeInput(inputId = "period", label = "Periode:",
                          start = "2017-01-01", end = NULL,
                          format = "dd-mm-yyyy", language = "nb",
-                         weekstart = 1)
+                         weekstart = 1),
+          radioButtons('formatTilsyn',
+                       'Format for nedlasting',
+                       c('PDF', 'HTML', 'BEAMER', 'REVEAL'),
+                       inline = FALSE),
+          downloadButton('downloadReportTilsyn', 'Last ned')
         ),
         mainPanel(
           htmlOutput("tilsynsrapport", inline = TRUE)

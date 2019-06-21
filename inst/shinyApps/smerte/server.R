@@ -51,13 +51,16 @@ server <- function(input, output, session) {
       HTML = html_document(),
       BEAMER = beamer_presentation(theme = "Hannover"),
       REVEAL = revealjs::revealjs_presentation(theme = "sky")
-      #css = normalizePath(system.file("bootstrap.css", package = "noric")))
     ), params = list(tableFormat=switch(
       type,
       PDF = "latex",
       HTML = "html",
       BEAMER = "latex",
-      REVEAL = "html"), hospitalName=hospitalName
+      REVEAL = "html"),
+      hospitalName=hospitalName,
+      reshId=rapbase::getUserReshId(session),
+      startDate=input$period[1],
+      endDate=input$period[2]
     ), output_dir = tempdir())
     # active garbage collection to prevent memory hogging?
     gc()
@@ -80,6 +83,19 @@ server <- function(input, output, session) {
   output$tilsynsrapport <- renderUI({
     htmlRenderRmd("tilsynsrapportMaaned.Rmd")
   })
+
+  output$downloadReportTilsyn <- downloadHandler(
+    filename = function() {
+      downloadFilename("tilsynsrapportMaaned",
+                       input$formatTilsyn)
+    },
+
+    content = function(file) {
+      contentFile(file, "tilsynsrapportMaaned.Rmd",
+                  "tmpTilsynsrapportMaaned.Rmd",
+                  input$formatTilsyn)
+    }
+  )
 
   # Figur og tabell
   ## Figur
