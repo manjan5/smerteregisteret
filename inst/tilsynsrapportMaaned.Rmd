@@ -11,7 +11,6 @@ title: '`r paste(params$title, params$hospitalName, "i perioden", params$startDa
 author: '`r params$author`'
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 header-includes:
-  - \usepackage[english, norsk]{babel}
   - \usepackage{booktabs}
   - \usepackage{rotating}
 output:
@@ -23,6 +22,7 @@ output:
 ---
 ```{r set options and load packages, include = FALSE}
 knitr::opts_chunk$set(echo=FALSE)
+options(knitr.table.format = params$tableFormat)
 
 # Pakker
 library(xtable)
