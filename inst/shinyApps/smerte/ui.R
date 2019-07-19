@@ -2,7 +2,14 @@ library(shiny)
 library(rapbase)
 
 addResourcePath('rap', system.file('www', package='rapbase'))
-regTitle = "Smerteregisteret"
+regTitle = "Smert"
+logo <- includeHTML(system.file('www/logo.svg', package='rapbase'))
+logoCode <- paste0("var header = $('.navbar> .container-fluid');\n",
+                   "header.append('<div class=\"navbar-brand\" style=\"float:left;font-size:75%\">",
+                   logo,
+                   "</div>');\n",
+                   "console.log(header)")
+logoWidget <- tags$script(shiny::HTML(logoCode))
 
 ui <- tagList(
   navbarPage(
