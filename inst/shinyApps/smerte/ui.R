@@ -6,7 +6,9 @@ regTitle = "Smerteregisteret"
 
 ui <- tagList(
   navbarPage(
-    title = div(img(src="rap/logo.svg", alt="Rapporteket", height="26px"),
+    # title = div(img(src="rap/logo.svg", alt="Rapporteket", height="26px"),
+    #             regTitle),
+    title = div(a(includeHTML(system.file('www/logo.svg', package='rapbase'))),
                 regTitle),
     windowTitle = regTitle,
     theme = "rap/bootstrap.css",
