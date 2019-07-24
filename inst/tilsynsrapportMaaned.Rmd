@@ -11,6 +11,7 @@ title: '`r paste(params$title, params$hospitalName, "i perioden", params$startDa
 author: '`r params$author`'
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 header-includes:
+  - \usepackage[norsk]{babel}
   - \usepackage{booktabs}
   - \usepackage{rotating}
 output:
