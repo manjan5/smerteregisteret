@@ -1,6 +1,7 @@
 library(shiny)
 library(magrittr)
 library(rapbase)
+library(smerteregisteret)
 
 server <- function(input, output, session) {
 
