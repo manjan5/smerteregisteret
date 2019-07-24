@@ -11,7 +11,7 @@ title: '`r paste(params$title, params$hospitalName, "i perioden", params$startDa
 author: '`r params$author`'
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 header-includes:
-  - \usepackage[norsk]{babel}
+  - \usepackage[english, norsk]{babel}
   - \usepackage{booktabs}
   - \usepackage{rotating}
 output:
@@ -100,7 +100,8 @@ mst(tab = tilsynsdata, colnames = c("Har pasienten fått tilsyn?", "Antall ",
                                     "Prosent"),
     cap = paste0("Antall for hver kategori om pasienten har fått tilsyn."),
     type = params$tableFormat,
-    digs = 0)
+    digs = 0,
+    align = c("l", "r", "r", "r"))
 ```
 
 
