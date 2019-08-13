@@ -14,8 +14,11 @@
 #' @examples
 #' makeHist(df = mtcars, var = "mpg", bins = 5, makeTable = FALSE)
 
-makeHist <- function(df, var, bins, makeTable = FALSE) {
+makeHist <- function(df, var, bins, makeTable = FALSE, ...) {
 
+  if ("session" %in% names(list(...))) {
+    raplog::repLogger(session = session, msg = "Second painful test...")
+  }
   x    <- df[[var]]
   bins <- seq(min(x), max(x), length.out = bins +1)
   t <- hist(x, breaks = bins, col = '#154ba2', border = 'white',
