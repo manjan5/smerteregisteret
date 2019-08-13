@@ -1,7 +1,7 @@
 Package: smerteregisteret
 Type: Package
 Title: R-pakke for smerteregisteret
-Version: 0.1.0
+Version: 0.1.0.9000
 Author: Janne Mannseth
 Maintainer: Janne Mannseth <janne.mannseth@helse-bergen.no>
 Description: Pakke for det nasjonale registeret "Smerteregisteret". Utarbeiding av rapporter for lokale og nasjonale data.
