@@ -17,7 +17,7 @@
 makeHist <- function(df, var, bins, makeTable = FALSE, ...) {
 
   if ("session" %in% names(list(...))) {
-    raplog::repLogger(session = session, msg = "Second painful test...")
+    raplog::repLogger(session = session, msg = "Make histogram")
   }
   x    <- df[[var]]
   bins <- seq(min(x), max(x), length.out = bins +1)

@@ -106,7 +106,7 @@ server <- function(input, output, session) {
   ## Figur
   output$distPlot <- renderPlot({
     #raplog::repLogger(session, msg = "Test parent frame")
-    makeHist(df = regData, var = input$var, bins = input$bins, session = session)
+    makeHist(df = regData, var = input$var, bins = input$bins, makeTable = FALSE, session = session)
   })
 
   ## Tabell
